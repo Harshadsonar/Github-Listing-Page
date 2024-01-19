@@ -3,7 +3,6 @@
 
 <head>
     <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="script.js"></script>
     <title>Your GitHub Profile</title>
@@ -15,11 +14,11 @@
     </div>
 
     <div id="title">
-        <h1>Enter Your GitHub Username :</h1>
-        <input id="user" type="text" placeholder="kaurAgam">
+        <h1>Enter Your GitHub Username</h1>
+        <input id="user" type="text" placeholder="Username">
         <button id="btn" onclick="getusername()">View</button>
     </div>
-    <div id="profile-loader" class="loader"></div>
+    <div id="profile-loader" class="loader" style="display: none;"></div>
 
     <div class="output-container" id="output">
         <div class="profile" id="profile">
@@ -37,35 +36,120 @@
             </div>
             <div class="info">
                 <ul>
-                    <li id="followers"></li>
-                    <li id="following"></li>
+                    <li id="location"></li>
                 </ul>
             </div>
         </div>
     </div>
-
-    <div id="repo-loader" class="loader"></div>
-    <div id="repo-box">
+    <div id="search-container">
+        <img src="./IconamoonSearchLight.svg" alt="search-icon">
+        <input type="text" id="repo-search" placeholder="Search Repositories..." oninput="debouncedSearch()">
     </div>
 
+    <div id="repo-loader" class="loader" style="display: none;"></div>
+    <div id="repo-box"></div>
+
     <div class="pagination">
-        <button onclick="paginate('first')">First</button>
-        <button onclick="paginate('prev')">Back</button>
-        <span id="page-info"><b></b></span>
-        <button onclick="paginate('next')">Next</button>
-        <button onclick="paginate('last')">Last</button>
+        <button onclick="paginate('first')">1</button>
+        <button onclick="paginate('second')">2</button>
+        <button onclick="paginate('third')">3</button>
+        <button onclick="paginate('fourth')">4</button>
+        <button onclick="paginate('fifth')">5</button>
+        <button onclick="paginate('sixth')">6</button>
+        <button onclick="paginate('seventh')">7</button>
+        <button onclick="paginate('eighth')">8</button>
+        <button onclick="paginate('ninth')">9</button>
+        <button onclick="paginate('tenth')">10</button>
+        <br>
+        <br>
+        <button onclick="paginate('older')"><< Older</button>
+        <button onclick="paginate('newer')">Newer >></button>
     </div>
 
     <script>
+        function filterRepositories() {
+            let input, filter, repos, repoItem, i, txtvalue;
+            input = document.getElementById("repo-search");
+            filter = input.value.toLowerCase();
+            repos = document.getElementsByClassName("repo-item");
+
+            for (i = 0; i < repos.length; i++) {
+                repoItem = repos[i];
+                txtvalue = repoItem.textContent || repoItem.innerText;
+                if (txtvalue.toLowerCase().indexOf(filter) > -1) {
+                    repos[i].style.display = "";
+                } else {
+                    repos[i].style.display = "none";
+                }
+            }
+        }
+
+        document.getElementById('search-container').style.display = "none";
         document.getElementById("back").style.display = "none";
 
+        function showRepoLoader() {
+            document.getElementById("repo-loader").style.display = "block";
+            document.getElementById("repo-box").style.display = "none";
+        }
+
+        function hideRepoLoader() {
+            document.getElementById("repo-loader").style.display = "none";
+            document.getElementById("repo-box").style.display = "block";
+        }
+
+        function getRepos(user) {
+            let repoUrl = `https://api.github.com/users/${user}/repos`;
+
+            fetch(repoUrl)
+                .then(response => {
+                    hideRepoLoader();
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch repositories");
+                    }
+                    return response.json();
+                })
+                .then(repos => {
+                    displayRepos(repos);
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert("Failed to fetch repositories. Please try again.");
+                });
+        }
+
+        function searchRepositories(user, query) {
+            showRepoLoader();
+            let searchUrl = `https://api.github.com/search/repositories?q=user:${user}+${query}`;
+
+            fetch(searchUrl)
+                .then(response => {
+                    hideRepoLoader();
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch repositories");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayRepos(data.items);
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert("Failed to fetch repositories. Please try again.");
+                });
+        }
+
         function getusername() {
-            var user = document.getElementById("user").value;
+            let user = document.getElementById("user").value;
 
             const apiUrl = `https://api.github.com/users/${user}`;
 
+            document.getElementById("profile-loader").style.display = "block";
+
             fetch(apiUrl)
                 .then(response => {
+                    setTimeout(() => {
+                        document.getElementById("profile-loader").style.display = "none";
+                    }, 500);
                     if (response.status === 404) {
                         window.location.href = "index.html";
                         alert("Sorry, the GitHub username appears to be invalid.");
@@ -76,21 +160,53 @@
                 .then(data => {
                     console.log(data);
                     document.getElementById('name').innerHTML = data.name;
-                    document.getElementById('bio').innerHTML = data.bio;
+                    document.getElementById('bio').innerHTML = "Bio: " + data.bio;
                     document.getElementById('link').innerHTML = 'https://github.com/' + user;
-                    document.getElementById('link').href = 'https://github.com/' + user;
-                    document.getElementById('followers').innerHTML = data.followers + " Followers";
-                    document.getElementById('following').innerHTML = data.following + " Following";
+                    document.getElementById('link').href = `https://github.com/${user}`;
+                    document.getElementById('location').innerHTML = "Location: " + data.location;
                     document.getElementById('profile').innerHTML = `
-                    <img src="${data.avatar_url}" />
+                    <img src="${data.avatar_url}"/>
                 `;
 
                     document.getElementById("title").style.display = "none";
                     document.getElementById("repo-box").style.display = "block";
                     document.getElementById("back").style.display = "block";
+                    document.getElementById('search-container').style.display = "block";
+
                     genRepo(user);
                 })
+                .catch(error => {
+                    console.error(error);
+                    alert("Failed to fetch user data. Please try again.");
+                });
         }
+
+        // Debounce function to delay execution of searchRepositories
+        const debounce = (func, delay) => {
+            let timeoutId;
+            return (...args) => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    func(...args);
+                }, delay);
+            };
+        };
+
+        // Wrap the searchRepositories function with the debounce function
+        const debouncedSearch = debounce(() => {
+            let user = document.getElementById("user").value;
+            let query = document.getElementById("repo-search").value;
+
+            if (user) {
+                if (query) {
+                    searchRepositories(user, query);
+                } else {
+                    getRepos(user);
+                }
+            } else {
+                alert("Please enter a GitHub username.");
+            }
+        }, 500); // Adjust the delay as needed
     </script>
 </body>
 
