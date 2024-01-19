@@ -7,7 +7,7 @@ repositories then while fetching data loader will be shown. Wherever API calls a
 Also in the bottom of the page user can switch between pages from 1 to 10 which will show 100 repositories data in which one 
 page contains 10 repositories. 
 
-This page is completed coded using HTML, CSS and JAVASCRIPT.
+This page is completed made using HTML, CSS and JAVASCRIPT.
 
 Link for the Repository :- https://github.com/Harshadsonar/Github-Listing-Page
 
