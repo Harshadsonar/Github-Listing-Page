@@ -3,7 +3,7 @@ and 10 repositories per page can be shown with user profile, bio, Github account
 When user searches for his repository at that time also loader is shown and when user has searched for his Github account 
 repositories then while fetching data loader will be shown. Wherever API calls are made, then loader will be shown.
 Also in the bottom of the page user can switch between pages from 1 to 10 which will show 100 repositories data in which one 
-page contains 10 repositories.
+page contains 10 repositories. 
 This page is completed coded using HTML, CSS and JAVASCRIPT.
 Link for the Repository :- https://github.com/Harshadsonar/Github-Listing-Page
 Link for the Hosted site :- https://github-listing-page.vercel.app/
